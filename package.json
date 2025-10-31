@@ -1,0 +1,21 @@
+{
+  "name": "inworld-zoom-demeanor-evaluator",
+  "version": "1.0.0",
+  "description": "Zoom App powered by Inworld AI Runtime for real-time communication evaluation and guidance",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "@inworld/runtime": "^0.6.0",
+    "@zoom/rtms": "^0.0.2",
+    "dotenv": "^16.0.3",
+    "express": "^4.21.2",
+    "sharp": "^0.34.4",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}

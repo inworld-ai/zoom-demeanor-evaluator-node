@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demeanor Evaluator</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Demeanor Evaluator</h1>
+            <div class="status-bar">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    <span id="statusText">Disconnected</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="evaluation-container">
+                <!-- Guidance Section -->
+                <div class="guidance-section">
+                    <h2>Guidance</h2>
+                    <div class="guidance-content" id="guidanceContent">
+                        <p class="empty-state">Start speaking to receive guidance on your communication style.</p>
+                    </div>
+                </div>
+
+                <!-- Evaluation Scores Section -->
+                <div class="scores-section">
+                    <h2>User Evaluation</h2>
+                    <div class="scores-grid">
+                        <!-- Professionalism Score -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <h3>Professionalism</h3>
+                                <div class="score-display">
+                                    <span class="score-value" id="professionalismScore">-</span>
+                                    <span class="score-max">/10</span>
+                                </div>
+                            </div>
+                            <div class="score-bar">
+                                <div class="score-fill" id="professionalismBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Friendliness Score -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <h3>Friendliness</h3>
+                                <div class="score-display">
+                                    <span class="score-value" id="friendlinessScore">-</span>
+                                    <span class="score-max">/10</span>
+                                </div>
+                            </div>
+                            <div class="score-bar">
+                                <div class="score-fill" id="friendlinessBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Helpfulness Score -->
+                        <div class="score-card">
+                            <div class="score-header">
+                                <h3>Helpfulness</h3>
+                                <div class="score-display">
+                                    <span class="score-value" id="helpfulnessScore">-</span>
+                                    <span class="score-max">/10</span>
+                                </div>
+                            </div>
+                            <div class="score-bar">
+                                <div class="score-fill" id="helpfulnessBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Feedback Section -->
+                <div class="visual-feedback-section">
+                    <h2>Visual Presentation Feedback</h2>
+                    <div class="visual-feedback-content" id="visualFeedbackContent">
+                        <p class="empty-state">Visual analysis will appear here once video is available.</p>
+                    </div>
+                    <div class="visual-update-time" id="visualUpdateTime">
+                        <span class="update-label">Last updated:</span>
+                        <span class="update-value">-</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Logger must be loaded before app.js -->
+    <script src="/js/logger.js"></script>
+    <script>
+        // Set default log level (can be overridden by server-side LOG_LEVEL env var)
+        window.LOG_LEVEL = window.LOG_LEVEL || 'ERROR';
+    </script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
