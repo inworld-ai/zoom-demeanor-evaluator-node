@@ -51,7 +51,7 @@ ZM_RTMS_CLIENT=your_zoom_client_id
 ZM_RTMS_SECRET=your_zoom_client_secret
 ```
 
-Get `INWORLD_API_KEY` from your Inworld workspace, and the Zoom credentials from your Zoom App Marketplace page.
+Get `INWORLD_API_KEY` from the [Inworld Portal](https://platform.inworld.ai/), and the Zoom credentials from your Zoom App Marketplace page.
 
 **Optional Logging Variables:**
 
