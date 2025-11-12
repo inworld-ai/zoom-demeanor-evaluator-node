@@ -1,11 +1,12 @@
 import 'dotenv/config';
-import { 
-  GraphBuilder, 
-  GraphTypes, 
-  RemoteLLMChatNode, 
-  CustomNode
-} from "@inworld/runtime/graph";
-import { renderJinja } from "@inworld/runtime/primitives/llm";
+import {
+  GraphBuilder,
+  GraphTypes,
+  RemoteLLMChatNode,
+  CustomNode,
+  ProcessContext,
+} from '@inworld/runtime/graph';
+import { renderJinja } from '@inworld/runtime/primitives/llm';
 import { Logger } from '../utils/logging.js';
 
 const logger = new Logger('GuidanceGraph');
@@ -13,7 +14,7 @@ const logger = new Logger('GuidanceGraph');
 const apiKey = process.env.INWORLD_API_KEY;
 if (!apiKey) {
   throw new Error(
-    "INWORLD_API_KEY environment variable is not set. Either add it to .env file in the root of the package or export it to the shell."
+    'INWORLD_API_KEY environment variable is not set. Either add it to .env file in the root of the package or export it to the shell.'
   );
 }
 
@@ -41,32 +42,44 @@ Based on the transcript above, provide brief, actionable guidance (1 sentence ma
 
 Return ONLY your guidance text, no formatting or labels.`;
 
+interface GuidanceInput {
+  transcript: Array<{
+    speaker: string;
+    text: string;
+    timestamp?: number;
+    [key: string]: unknown;
+  }>;
+}
+
 const llm = new RemoteLLMChatNode({
-  id: "guidance-llm",
-  provider: "groq",
-  modelName: "openai/gpt-oss-120b",
-  textGenerationConfig: { maxNewTokens: 500, temperature: 0.7 }
+  id: 'guidance-llm',
+  provider: 'groq',
+  modelName: 'openai/gpt-oss-120b',
+  textGenerationConfig: { maxNewTokens: 500, temperature: 0.7 },
 });
 
 class TranscriptToGuidancePromptNode extends CustomNode {
-  async process(_context, input) {
+  async process(
+    _context: ProcessContext,
+    input: GuidanceInput
+  ): Promise<GraphTypes.LLMChatRequest> {
     const renderedPrompt = await renderJinja(guidancePrompt, {
-      transcript: input.transcript || []
+      transcript: input.transcript || [],
     });
-    
+
     return new GraphTypes.LLMChatRequest({
       messages: [
         {
-          role: "system",
-          content: renderedPrompt
-        }
-      ]
+          role: 'system',
+          content: renderedPrompt,
+        },
+      ],
     });
   }
 }
 
 const transcriptToPrompt = new TranscriptToGuidancePromptNode({
-  id: "transcript-to-guidance-prompt"
+  id: 'transcript-to-guidance-prompt',
 });
 
 export const guidanceGraph = new GraphBuilder({ id: 'guidance-graph', apiKey })
