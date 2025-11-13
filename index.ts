@@ -26,6 +26,17 @@ const RTMS_CONFIG: RTMSConfig = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Determine public directory path based on environment
+// In dev mode, use the source public folder for live updates
+// In production, use the built public folder in dist
+const isDev = process.env.NODE_ENV === 'development';
+const publicPath = isDev
+  ? path.join(__dirname, '..', 'public') // Go up from dist to project root
+  : path.join(__dirname, 'public'); // Use dist/public
+
+logger.info(`Running in ${isDev ? 'development' : 'production'} mode`);
+logger.debug(`Serving static files from: ${publicPath}`);
+
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,7 +52,7 @@ app.use((_req, res, next) => {
 });
 
 // Serve static files from public folder
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(publicPath));
 
 // Root route - serve the HTML page
 app.get('/', (_req: Request, res: Response) => {
@@ -49,7 +60,7 @@ app.get('/', (_req: Request, res: Response) => {
   logger.debug('Query params:', _req.query);
   logger.debug('Headers:', _req.headers);
 
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 // Create HTTP server
