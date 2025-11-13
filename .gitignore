@@ -1,6 +1,9 @@
 # Logs
 logs
 *.log
+debug.log
+logs/*
+!logs/.gitkeep
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -68,6 +71,8 @@ web_modules/
 # dotenv environment variable files
 .env
 .env.*
+.env.local
+.env.*.local
 !.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -136,3 +141,37 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Zoom project specific
+templates_zoom/
+
+# Audio files and processing
+*.wav
+*.mp3
+*.ogg
+*.aac
+*.m4a
+*.flac
+audio_output/
+temp/
+processed/
+debug_audio.pcm
+
+# Recordings
+recordings/*
+!recordings/.gitkeep
+
+# Generated screenshots (keep directory but ignore files)
+screenshots/*.jpg
+!screenshots/.gitkeep
+
+# Project specific files
+scratchpad.md
+output.mp4
