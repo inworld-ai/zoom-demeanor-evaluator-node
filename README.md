@@ -68,7 +68,16 @@ ngrok http --url=your-subdomain.ngrok-free.app 3000
 
 ### Step 6: Run the Application
 
+**For development** (with auto-reload on file changes):
+
 ```bash
+npm run dev
+```
+
+**For production**:
+
+```bash
+npm run build
 npm start
 ```
 
@@ -113,11 +122,7 @@ If you don't get RTMS data coming through to the app:
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
 
 ## License
 

@@ -1,12 +1,12 @@
 import 'dotenv/config';
-import fs from 'fs';
-import { 
-  GraphBuilder, 
-  GraphTypes, 
-  RemoteLLMChatNode, 
-  CustomNode
-} from "@inworld/runtime/graph";
-import { renderJinja } from "@inworld/runtime/primitives/llm";
+import {
+  GraphBuilder,
+  GraphTypes,
+  RemoteLLMChatNode,
+  CustomNode,
+  ProcessContext,
+} from '@inworld/runtime/graph';
+import { renderJinja } from '@inworld/runtime/primitives/llm';
 import { Logger } from '../utils/logging.js';
 
 const logger = new Logger('EvaluationGraph');
@@ -14,7 +14,7 @@ const logger = new Logger('EvaluationGraph');
 const apiKey = process.env.INWORLD_API_KEY;
 if (!apiKey) {
   throw new Error(
-    "INWORLD_API_KEY environment variable is not set. Either add it to .env file in the root of the package or export it to the shell."
+    'INWORLD_API_KEY environment variable is not set. Either add it to .env file in the root of the package or export it to the shell.'
   );
 }
 
@@ -51,49 +51,64 @@ You MUST return a valid JSON object in this exact format:
 Replace X, Y, Z with integer numbers from 1 to 10.
 Do not include any other text, explanation, or formatting - ONLY the JSON object.`;
 
+interface EvaluationInput {
+  transcript: Array<{
+    speaker: string;
+    text: string;
+    timestamp?: number;
+    [key: string]: unknown;
+  }>;
+}
+
 const llm = new RemoteLLMChatNode({
-  id: "evaluation-llm",
-  provider: "openai",
-  modelName: "gpt-4.1-nano",
-  textGenerationConfig: { 
-    maxNewTokens: 1000,  // Increased from 50 to ensure JSON response fits
-    temperature: 0.8  // Lower temperature for more consistent JSON output
-  }
+  id: 'evaluation-llm',
+  provider: 'openai',
+  modelName: 'gpt-4.1-nano',
+  textGenerationConfig: {
+    maxNewTokens: 1000, // Increased from 50 to ensure JSON response fits
+    temperature: 0.8, // Lower temperature for more consistent JSON output
+  },
 });
 
 class TranscriptToEvaluationPromptNode extends CustomNode {
-  async process(_context, input) {
+  async process(
+    _context: ProcessContext,
+    input: EvaluationInput
+  ): Promise<GraphTypes.LLMChatRequest> {
     logger.debug('Processing input with transcript:', input.transcript);
-    
+
     const renderedPrompt = await renderJinja(evaluationPrompt, {
-      transcript: input.transcript || []
+      transcript: input.transcript || [],
     });
-    
+
     logger.debug('Rendered prompt length:', renderedPrompt.length);
-    
+
     const request = new GraphTypes.LLMChatRequest({
       messages: [
         {
-          role: "system",
-          content: renderedPrompt
+          role: 'system',
+          content: renderedPrompt,
         },
         {
-          role: "user",
-          content: "Provide the evaluation scores as JSON."
-        }
-      ]
+          role: 'user',
+          content: 'Provide the evaluation scores as JSON.',
+        },
+      ],
     });
-    
+
     logger.debug('Created LLM request');
     return request;
   }
 }
 
 const transcriptToPrompt = new TranscriptToEvaluationPromptNode({
-  id: "transcript-to-evaluation-prompt"
+  id: 'transcript-to-evaluation-prompt',
 });
 
-export const evaluationGraph = new GraphBuilder({ id: 'evaluation-graph', apiKey })
+export const evaluationGraph = new GraphBuilder({
+  id: 'evaluation-graph',
+  apiKey,
+})
   .addNode(llm)
   .addNode(transcriptToPrompt)
   .setStartNode(transcriptToPrompt)
