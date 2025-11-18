@@ -446,7 +446,10 @@ export async function cleanup(): Promise<void> {
         logger.debug('Stopping visual evaluation graph instance');
         await (visualEvalGraphInstance as { stop: () => Promise<void> }).stop();
       } catch (error) {
-        logger.debug('Error stopping visual evaluation graph (non-fatal):', error);
+        logger.debug(
+          'Error stopping visual evaluation graph (non-fatal):',
+          error
+        );
       }
       visualEvalGraphInstance = null;
     }

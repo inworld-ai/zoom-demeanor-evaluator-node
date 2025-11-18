@@ -117,7 +117,7 @@ async function shutdown(): Promise<void> {
               logger.debug('WebSocket handler cleanup timeout');
               resolve(undefined);
             }, 5000);
-          })
+          }),
         ]);
       } catch (error) {
         // Log but continue - cleanup errors shouldn't prevent shutdown
@@ -134,7 +134,7 @@ async function shutdown(): Promise<void> {
             logger.debug('Inworld cleanup timeout');
             resolve(undefined);
           }, 5000);
-        })
+        }),
       ]);
     } catch (error) {
       // Log but continue - cleanup errors shouldn't prevent shutdown
@@ -157,7 +157,7 @@ async function shutdown(): Promise<void> {
           logger.debug('HTTP server close timeout');
           resolve();
         }, 2000);
-      })
+      }),
     ]);
 
     // Stop Inworld Runtime with timeout
@@ -169,7 +169,7 @@ async function shutdown(): Promise<void> {
             logger.debug('stopInworldRuntime timeout');
             resolve(undefined);
           }, 5000);
-        })
+        }),
       ]);
       logger.debug('Inworld Runtime stopped');
     } catch (error) {
