@@ -23,7 +23,7 @@
   "author": "Inworld AI",
   "license": "MIT",
   "dependencies": {
-    "@inworld/runtime": "^0.6.4",
+    "@inworld/runtime": "https://assets.inworld.ai/node-packages/inworld-runtime-0.8.0-rc.15.tgz",
     "@zoom/rtms": "^0.0.2",
     "dotenv": "^16.0.3",
     "express": "^4.21.2",

@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import WebSocketHandler from './src/rtms/websocketHandler.js';
 import applyHeaders from './src/utils/applyHeaders.js';
 import { cleanup as cleanupInworld } from './src/inworld/inworldService.js';
+import { stopInworldRuntime } from '@inworld/runtime';
 import { Logger } from './src/utils/logging.js';
 
 const logger = new Logger('Server');
@@ -94,15 +95,30 @@ process.on(
   }
 );
 
-// Shutdown function
+// Shutdown function - prevent multiple calls
+let isShuttingDown = false;
+
 async function shutdown(): Promise<void> {
+  if (isShuttingDown) {
+    return;
+  }
+  isShuttingDown = true;
+
   logger.info('Starting graceful shutdown...');
 
   try {
     // Close WebSocket handler connections
     if (wsHandler) {
       try {
-        await wsHandler.cleanup();
+        await Promise.race([
+          wsHandler.cleanup(),
+          new Promise((resolve) => {
+            setTimeout(() => {
+              logger.debug('WebSocket handler cleanup timeout');
+              resolve(undefined);
+            }, 5000);
+          })
+        ]);
       } catch (error) {
         // Log but continue - cleanup errors shouldn't prevent shutdown
         logger.debug('WebSocket handler cleanup error (non-fatal):', error);
@@ -111,26 +127,59 @@ async function shutdown(): Promise<void> {
 
     // Cleanup Inworld graph instances
     try {
-      await cleanupInworld();
+      await Promise.race([
+        cleanupInworld(),
+        new Promise((resolve) => {
+          setTimeout(() => {
+            logger.debug('Inworld cleanup timeout');
+            resolve(undefined);
+          }, 5000);
+        })
+      ]);
     } catch (error) {
       // Log but continue - cleanup errors shouldn't prevent shutdown
       logger.debug('Inworld cleanup error (non-fatal):', error);
     }
 
-    // Close the HTTP server
+    // Give a small delay for any pending operations to complete
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Close the HTTP server with timeout
+    await Promise.race([
+      new Promise<void>((resolve) => {
+        server.close(() => {
+          logger.debug('HTTP server closed');
+          resolve();
+        });
+      }),
+      new Promise<void>((resolve) => {
+        setTimeout(() => {
+          logger.debug('HTTP server close timeout');
+          resolve();
+        }, 2000);
+      })
+    ]);
+
+    // Stop Inworld Runtime with timeout
     try {
-      server.close(() => {
-        logger.debug('HTTP server closed');
-      });
+      await Promise.race([
+        stopInworldRuntime(),
+        new Promise((resolve) => {
+          setTimeout(() => {
+            logger.debug('stopInworldRuntime timeout');
+            resolve(undefined);
+          }, 5000);
+        })
+      ]);
+      logger.debug('Inworld Runtime stopped');
     } catch (error) {
-      logger.debug('HTTP server close error (non-fatal):', error);
+      // Log but continue - cleanup errors shouldn't prevent shutdown
+      logger.debug('stopInworldRuntime error (non-fatal):', error);
     }
 
-    // Give some time for cleanup to complete
-    setTimeout(() => {
-      logger.success('Shutdown complete');
-      process.exit(0);
-    }, 1000);
+    // Exit immediately after cleanup
+    logger.success('Shutdown complete');
+    process.exit(0);
   } catch (error) {
     // Final catch-all - log and exit gracefully
     logger.error('Unexpected error during shutdown:', error);

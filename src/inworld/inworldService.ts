@@ -134,7 +134,7 @@ export async function getGuidance(): Promise<string> {
       transcriptHistory.length,
       'entries'
     );
-    const { outputStream } = activeGraph.start(graphInput);
+    const { outputStream } = await activeGraph.start(graphInput);
 
     if (!outputStream) {
       logger.error('No output stream returned from guidance graph');
@@ -219,7 +219,7 @@ export async function getEvaluationScores(): Promise<EvaluationScores> {
       transcriptHistory.length,
       'entries'
     );
-    const { outputStream } = activeGraph.start(graphInput);
+    const { outputStream } = await activeGraph.start(graphInput);
 
     if (!outputStream) {
       logger.error('No output stream returned from evaluation graph');
@@ -351,7 +351,7 @@ export async function processVisualEvaluation(
     const graphInput = { imagePath: imagePath };
 
     logger.debug('Starting visual evaluation graph execution');
-    const { outputStream } = activeGraph.start(graphInput);
+    const { outputStream } = await activeGraph.start(graphInput);
 
     if (!outputStream) {
       logger.error('No output stream returned from visual evaluation graph');
@@ -420,22 +420,34 @@ export async function cleanup(): Promise<void> {
   try {
     // Stop guidance graph if it exists
     if (guidanceGraphInstance && 'stop' in guidanceGraphInstance) {
-      logger.debug('Stopping guidance graph instance');
-      await (guidanceGraphInstance as { stop: () => Promise<void> }).stop();
+      try {
+        logger.debug('Stopping guidance graph instance');
+        await (guidanceGraphInstance as { stop: () => Promise<void> }).stop();
+      } catch (error) {
+        logger.debug('Error stopping guidance graph (non-fatal):', error);
+      }
       guidanceGraphInstance = null;
     }
 
     // Stop evaluation graph if it exists
     if (evaluationGraphInstance && 'stop' in evaluationGraphInstance) {
-      logger.debug('Stopping evaluation graph instance');
-      await (evaluationGraphInstance as { stop: () => Promise<void> }).stop();
+      try {
+        logger.debug('Stopping evaluation graph instance');
+        await (evaluationGraphInstance as { stop: () => Promise<void> }).stop();
+      } catch (error) {
+        logger.debug('Error stopping evaluation graph (non-fatal):', error);
+      }
       evaluationGraphInstance = null;
     }
 
     // Stop visual evaluation graph if it exists
     if (visualEvalGraphInstance && 'stop' in visualEvalGraphInstance) {
-      logger.debug('Stopping visual evaluation graph instance');
-      await (visualEvalGraphInstance as { stop: () => Promise<void> }).stop();
+      try {
+        logger.debug('Stopping visual evaluation graph instance');
+        await (visualEvalGraphInstance as { stop: () => Promise<void> }).stop();
+      } catch (error) {
+        logger.debug('Error stopping visual evaluation graph (non-fatal):', error);
+      }
       visualEvalGraphInstance = null;
     }
 
