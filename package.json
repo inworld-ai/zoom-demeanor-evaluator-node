@@ -26,7 +26,7 @@
     "@inworld/runtime": "^0.8.0",
     "@zoom/rtms": "^0.0.2",
     "dotenv": "^16.0.3",
-    "express": "^4.21.2",
+    "express": "^4.22.1",
     "sharp": "^0.34.4",
     "ws": "^8.16.0"
   },
