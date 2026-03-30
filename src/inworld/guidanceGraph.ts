@@ -6,7 +6,7 @@ import {
   CustomNode,
   ProcessContext,
 } from '@inworld/runtime/graph';
-import { renderJinja } from '@inworld/runtime/primitives/llm';
+import { PromptBuilder } from '@inworld/runtime/primitives/llm';
 import { Logger } from '../utils/logging.js';
 
 const logger = new Logger('GuidanceGraph');
@@ -63,7 +63,8 @@ class TranscriptToGuidancePromptNode extends CustomNode {
     _context: ProcessContext,
     input: GuidanceInput
   ): Promise<GraphTypes.LLMChatRequest> {
-    const renderedPrompt = await renderJinja(guidancePrompt, {
+    const builder = await PromptBuilder.create(guidancePrompt);
+    const renderedPrompt = await builder.build({
       transcript: input.transcript || [],
     });
 
