@@ -6,7 +6,7 @@ import {
   CustomNode,
   ProcessContext,
 } from '@inworld/runtime/graph';
-import { renderJinja } from '@inworld/runtime/primitives/llm';
+import { PromptBuilder } from '@inworld/runtime/primitives/llm';
 import { Logger } from '../utils/logging.js';
 
 const logger = new Logger('EvaluationGraph');
@@ -77,7 +77,8 @@ class TranscriptToEvaluationPromptNode extends CustomNode {
   ): Promise<GraphTypes.LLMChatRequest> {
     logger.debug('Processing input with transcript:', input.transcript);
 
-    const renderedPrompt = await renderJinja(evaluationPrompt, {
+    const builder = await PromptBuilder.create(evaluationPrompt);
+    const renderedPrompt = await builder.build({
       transcript: input.transcript || [],
     });
 

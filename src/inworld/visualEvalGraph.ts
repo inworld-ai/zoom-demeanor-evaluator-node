@@ -6,6 +6,7 @@ import {
   CustomNode,
   ProcessContext,
 } from '@inworld/runtime/graph';
+import { ImageDetail } from '@inworld/runtime/primitives/llm';
 import { Logger } from '../utils/logging.js';
 import fs from 'fs/promises';
 
@@ -92,16 +93,14 @@ class ImageToEvaluationPromptNode extends CustomNode {
     }
 
     // Create multimodal message with image - ensure the structure matches GraphTypes format
-    const userContent = [
+    const userContentItems = [
       {
-        type: 'text' as const,
-        text: 'Please provide feedback on the visual appearance of this agent in the video call.',
+        contentItem: 'Please provide feedback on the visual appearance of this agent in the video call.',
       },
       {
-        type: 'image' as const,
-        image_url: {
+        contentItem: {
           url: imageDataUrl,
-          detail: 'low' as const, // Using 'low' for faster processing
+          detail: ImageDetail.Low, // Low detail for faster processing
         },
       },
     ];
@@ -110,7 +109,7 @@ class ImageToEvaluationPromptNode extends CustomNode {
     logger.debug(
       'User content structure:',
       JSON.stringify(
-        userContent,
+        userContentItems,
         (key, value) => {
           if (
             key === 'url' &&
@@ -132,7 +131,8 @@ class ImageToEvaluationPromptNode extends CustomNode {
       },
       {
         role: 'user',
-        content: userContent,
+        content: '',
+        contentItems: userContentItems,
       },
     ];
 
